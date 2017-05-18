@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -18,7 +19,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.HashMap;
 
 /**
- * Provides and interface for SQLite db queries involving adding, removing or modifing locations.
+ * Provides and interface for SQLite db queries involving adding, removing or modifying locations.
+ * Also maintains a caching collection of Markers by their unique Db id.
  */
 public class DbAdapter {
 
@@ -40,6 +42,14 @@ public class DbAdapter {
         return instance;
     }
 
+    @Nullable
+    /**
+     * Returns a Marker from the cache, based on its Db id.
+     * <b>Use the id supplied by the {@link MarkerDetail} tag of the Marker instance, not the {@link Marker#getId()} !</b>
+     * Returns <code>null</code> if the cache doesn't contain a mapping to that id.
+     */
+    public Marker getMarker(long id){ return id < 1 ? null : markerCache.get(id); }
+
     /**
      * Stores the marker passed in the appropriate DB table and then adds it to the cache collection.
      *
@@ -49,7 +59,6 @@ public class DbAdapter {
 
         //TODO - ReverseGeoWhatever
         if (m == null) return;
-
         ContentValues values = new ContentValues(4);
         values.put(h.LOCATION_COL_ADDRESS, "?");
         values.put(h.LOCATION_COL_COUNTRY, "?");
@@ -79,8 +88,6 @@ public class DbAdapter {
 
     public void loadMarkers(final GoogleMap map) {
         //TODO - validate map param!
-        Log.e("SADASDASDASDASD", "SADASDASDASDAS");
-
         new AsyncTask<Void, MarkerDetail, Void>() {
 
             @Override
@@ -94,9 +101,9 @@ public class DbAdapter {
                 int indxLat = c.getColumnIndex(h.LOCATION_COL_LATITUDE);
                 int indxLng = c.getColumnIndex(h.LOCATION_COL_LONGITUDE);
 
-                while (c.moveToNext()) {
+                Log.e("LOADER: ", "STARTED. COUNT: " + c.getCount());
 
-                    Log.e("SADASDASDASDASD", "SADASDASDASDAS");
+                while (c.moveToNext()) {
 
                     long id = c.getLong(indxId);
 
@@ -106,12 +113,12 @@ public class DbAdapter {
                     double latitude = c.getDouble(indxLat);
                     double longitude = c.getDouble(indxLng);
                     LatLng latLng = new LatLng(latitude, longitude);
-                    
+
                     publishProgress(new MarkerDetail(id, address, country, latLng));
 
                 }
-
                 c.close();
+                Log.e("LOADER: ", "FINISHED");
                 return null;
             }
 
@@ -202,5 +209,6 @@ public class DbAdapter {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCATION + " ;");
             onCreate(db);
         }
+
     }
 }
