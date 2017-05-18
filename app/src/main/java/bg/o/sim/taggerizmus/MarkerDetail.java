@@ -1,11 +1,16 @@
 package bg.o.sim.taggerizmus;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
+
+
+//TODO !!! VALIDATION !!!
+//TODO documentation
 
 /**
  * Stores the modifiable info of a GoogleMap Marker.
- * Necessitated by restrictions on background tasks modifying a GoogleMap object, which in term is necessary for proper Marker instantiation.
+ * Necessitated by restrictions on background tasks modifying a GoogleMap object and the need to store extra info about the Marker.
  */
 public class MarkerDetail {
 
@@ -21,6 +26,12 @@ public class MarkerDetail {
         this.address = address;
         this.country = country;
         this.latLng = latLng;
+    }
+
+
+    public MarkerDetail(long id, String address, String country, LatLng latLng, Marker m) {
+        this(id, address, country, latLng);
+        if (m != null) m.setTag(this);
     }
 
     public long getId() {

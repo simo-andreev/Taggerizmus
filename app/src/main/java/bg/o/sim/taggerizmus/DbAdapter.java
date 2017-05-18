@@ -24,7 +24,8 @@ public class DbAdapter {
 
     private static DbAdapter instance;
 
-    private final HashMap<Long, MarkerDetail> markerCache;
+    /*Holds all markers for easier(and faster) access and modification, stored as <db id - Marker instance>*/
+    private final HashMap<Long, Marker> markerCache;
 
     private DbHelper h;
 
@@ -65,7 +66,8 @@ public class DbAdapter {
 
         if (id < 0) return;
 
-        markerCache.put(id, new MarkerDetail(id, "?", "?", new LatLng(m.getPosition().latitude, m.getPosition().longitude)));
+        m.setTag(new MarkerDetail(id, "?", "?", new LatLng(m.getPosition().latitude, m.getPosition().longitude)));
+        markerCache.put(id, m);
         Log.i("LOADER: ", "INSERTED LOC: " + m.getPosition().toString());
     }
 
@@ -77,9 +79,9 @@ public class DbAdapter {
 
     public void loadMarkers(final GoogleMap map) {
         //TODO - validate map param!
-        Log.e("SADASDASDASDASD","SADASDASDASDAS");
+        Log.e("SADASDASDASDASD", "SADASDASDASDAS");
 
-        new AsyncTask<Void, Void, Void>() {
+        new AsyncTask<Void, MarkerDetail, Void>() {
 
             @Override
             protected Void doInBackground(Void... params) {
@@ -94,7 +96,7 @@ public class DbAdapter {
 
                 while (c.moveToNext()) {
 
-                    Log.e("SADASDASDASDASD","SADASDASDASDAS");
+                    Log.e("SADASDASDASDASD", "SADASDASDASDAS");
 
                     long id = c.getLong(indxId);
 
@@ -104,8 +106,8 @@ public class DbAdapter {
                     double latitude = c.getDouble(indxLat);
                     double longitude = c.getDouble(indxLng);
                     LatLng latLng = new LatLng(latitude, longitude);
-
-                    markerCache.put(id, new MarkerDetail(id, address, country, latLng));
+                    
+                    publishProgress(new MarkerDetail(id, address, country, latLng));
 
                 }
 
@@ -113,12 +115,19 @@ public class DbAdapter {
                 return null;
             }
 
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                for (MarkerDetail d : markerCache.values())
-                    map.addMarker(new MarkerOptions().position(d.getLatLng()));
 
+            @Override
+            protected void onProgressUpdate(MarkerDetail... values) {
+                if (values.length == 0 || values[0] == null) return;
+
+                //Add a Marker, corresponding the the loaded from Db MarkerDetail, to the map.
+                Marker m = map.addMarker(new MarkerOptions().position(values[0].getLatLng()));
+                //Store the details as the Marker's Tag.
+                m.setTag(values[0]);
+                //Cache the Marker itself.
+                markerCache.put(values[0].getId(), m);
             }
+
         }.execute();
     }
 
@@ -162,11 +171,9 @@ public class DbAdapter {
 
 
         private static DbHelper instance;
-        private final Context context;
 
         private DbHelper(Context context) {
             super(context, DB_NAME, null, DB_VERSION);
-            this.context = context;
         }
 
         /**
