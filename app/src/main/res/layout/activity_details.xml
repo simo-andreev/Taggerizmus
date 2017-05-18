@@ -3,48 +3,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:padding="@dimen/all_spacing_standard"
     tools:context="bg.o.sim.taggerizmus.DetailsActivity">
 
 
     <ImageView
-        android:id="@+id/details_image"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:adjustViewBounds="true"/>
+        android:id="@+id/details_default_photo"
+        style="@style/DetailsPhotoPager"
+        android:src="@mipmap/image_default_photo"
+        android:visibility="visible" />
+    <android.support.v4.view.ViewPager
+        android:id="@+id/details_photo_pager"
+        style="@style/DetailsPhotoPager"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/details_country"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/test_text"/>
+        android:text="@string/test_text" />
 
     <TextView
         android:id="@+id/details_address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/test_text"/>
+        android:text="@string/test_text" />
 
 
     <TextView
         android:id="@+id/details_lat"
-        android:inputType="number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/test_text"/>
+        android:inputType="number"
+        android:text="@string/test_text" />
 
     <TextView
         android:id="@+id/details_lon"
-        android:inputType="number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/test_text"/>
+        android:inputType="number"
+        android:text="@string/test_text" />
 
     <Button
-        android:text="@string/test_text"
         android:id="@+id/details_add_photo"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="@string/test_text" />
 
 </LinearLayout>

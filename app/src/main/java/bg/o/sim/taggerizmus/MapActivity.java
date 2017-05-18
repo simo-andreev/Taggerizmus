@@ -72,15 +72,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         });
 
 
-//        Random rand = new Random();
-//
-//        MarkerOptions o = new MarkerOptions();
-        //TODo - remove us
-//        for (int i = 0; i < 1_000_000_000; i++) {
-//            dbAdapter.addMarker(map.addMarker(o.position(new LatLng(rand.nextDouble() * 90, rand.nextDouble() * 90))));
-//            Log.e("LOADER: ", "" + i);
-//        }
-
         //TODO - try to center on current location if Location services allowed and present
         //Create a marker;
         LatLng home = new LatLng(0, 0); // null island is best island!!! ~KJU 2017

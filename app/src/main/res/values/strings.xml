@@ -4,5 +4,5 @@
     <string name="EXTRA_MARKER">EXTRA_MARKER</string>
     <string name="message_loading">loading ...</string>
     <string name="test_text">THIS IS A PLACEHOLDER</string>
-    <string name="FILE_NAME_MARKER_IMAGE">marker_</string>
+    <string name="FILE_MARKER_IMAGE_FOLDER">/images/marker_</string>
 </resources>
