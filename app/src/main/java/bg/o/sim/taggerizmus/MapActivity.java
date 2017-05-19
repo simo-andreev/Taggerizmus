@@ -1,6 +1,8 @@
 package bg.o.sim.taggerizmus;
 
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +16,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -46,6 +52,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
+        final Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         dbAdapter.loadMarkers(map);
 
@@ -53,7 +60,14 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)));
+
+                List<Address> addresses = new ArrayList<Address>();
+                try {
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1); // The '1' represent max location result to returned
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)), addresses);
             }
         });
 

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Address;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Provides and interface for SQLite db queries involving adding, removing or modifying locations.
@@ -30,9 +32,12 @@ public class DbAdapter {
     private final HashMap<Long, Marker> markerCache;
 
     private DbHelper h;
+    private Context c;
 
-    private DbAdapter(Context c) {
-        if (c == null) throw new IllegalArgumentException("The Context must be non-null !!!");
+    private DbAdapter(Context context) {
+        if (context == null) throw new IllegalArgumentException("The Context must be non-null !!!");
+
+        this.c = context;
         this.h = DbHelper.getInstance(c);
         this.markerCache = new HashMap<>();
     }
@@ -48,20 +53,45 @@ public class DbAdapter {
      * <b>Use the id supplied by the {@link MarkerDetail} tag of the Marker instance, not the {@link Marker#getId()} !</b>
      * Returns <code>null</code> if the cache doesn't contain a mapping to that id.
      */
-    public Marker getMarker(long id){ return id < 1 ? null : markerCache.get(id); }
+    public Marker getMarker(long id) {
+        return id < 1 ? null : markerCache.get(id);
+    }
 
     /**
      * Stores the marker passed in the appropriate DB table and then adds it to the cache collection.
      *
      * @param m {@link Marker} instance which to store.
      */
-    public void addMarker(Marker m) {
+    public void addMarker(Marker m, List<Address> addresses) {
+
+        double lat = m.getPosition().latitude;
+        double lng = m.getPosition().longitude;
+
+        String address = "N/A";
+        String country = c.getString(R.string.not_in_country);
+
+        if (addresses.size() > 0) {
+            country = addresses.get(0).getCountryName();
+
+            String street = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+            String postalCode = addresses.get(0).getPostalCode();
+
+            StringBuilder sb = new StringBuilder();
+            if (street != null) sb.append(street + ", ");
+            if (city != null) sb.append(city + ", ");
+            if (postalCode != null) sb.append(postalCode + ", ");
+            if (state != null) sb.append(state + ", ");
+            address = sb.toString();
+        }
+
 
         //TODO - ReverseGeoWhatever
         if (m == null) return;
         ContentValues values = new ContentValues(4);
-        values.put(h.LOCATION_COL_ADDRESS, "?");
-        values.put(h.LOCATION_COL_COUNTRY, "?");
+        values.put(h.LOCATION_COL_ADDRESS, address);
+        values.put(h.LOCATION_COL_COUNTRY, country);
         values.put(h.LOCATION_COL_LONGITUDE, m.getPosition().longitude);
         values.put(h.LOCATION_COL_LATITUDE, m.getPosition().latitude);
 
@@ -75,7 +105,7 @@ public class DbAdapter {
 
         if (id < 0) return;
 
-        m.setTag(new MarkerDetail(id, "?", "?", new LatLng(m.getPosition().latitude, m.getPosition().longitude)));
+        m.setTag(new MarkerDetail(id, address, country, new LatLng(m.getPosition().latitude, m.getPosition().longitude)));
         markerCache.put(id, m);
         Log.i("LOADER: ", "INSERTED LOC: " + m.getPosition().toString());
     }

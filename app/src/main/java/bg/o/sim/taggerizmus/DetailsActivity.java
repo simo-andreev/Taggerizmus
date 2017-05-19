@@ -86,7 +86,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
             }
         };
 
-        
+
         long id = getIntent().getLongExtra(getString(R.string.EXTRA_MARKER), -1);
         if (id == -1) finish(); //TODO - ! decide on how to notify user... gently... that something went wrong. !
         marker = dbAdapter.getMarker(id);
