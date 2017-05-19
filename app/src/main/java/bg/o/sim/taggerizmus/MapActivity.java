@@ -26,7 +26,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     private DbAdapter dbAdapter;
     private GoogleMap map;
-    private Geocoder
+    private Geocoder geocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +34,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         setContentView(R.layout.activity_map);
 
         dbAdapter = DbAdapter.getInstance(getApplicationContext());
+        geocoder = new Geocoder(this, Locale.getDefault());
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -61,17 +62,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             @Override
             public void onMapClick(LatLng latLng) {
 
-                List<Address> addresses = new ArrayList<Address>();
-                try {
-                    // The '1' represent max location result to returned
-                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    //TODO
-                }
-                Address markerAdreess = addresses.size() == 0 ? null : addresses.get(0);
-
-                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)), markerAdreess); //TODO !! adding markers is painfully slow, lighten or thread it.
+                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)), geocoder);
+                //TODO !! adding markers is painfully slow, lighten or thread it.
 
             }
         });

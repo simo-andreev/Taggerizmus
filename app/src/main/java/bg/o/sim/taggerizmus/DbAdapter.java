@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Address;
+import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,66 +65,84 @@ public class DbAdapter {
      *
      * @param m {@link Marker} instance which to store.
      */
-    public void addMarker(Marker m, Address markerAddress) {
+    public void addMarker(final Marker m, final Geocoder geocoder) {
+        if (m == null || geocoder == null) return;
 
-        double lat = m.getPosition().latitude;
-        double lng = m.getPosition().longitude;
+        new AsyncTask<Void, Void, ContentValues>() {
+            double lat;
+            double lng;
 
-        String address = "N/A";
-        String country = c.getString(R.string.not_in_country);
+            String address = "N/A";
+            String country = c.getString(R.string.not_in_country);
 
-        if (markerAddress != null) {
-            country = markerAddress.getCountryName();
+            @Override
+            protected void onPreExecute() {
+                lat = m.getPosition().latitude;
+                lng = m.getPosition().longitude;
+            }
 
-            StringBuilder sb = new StringBuilder();
-            sb.append(markerAddress.getAddressLine(0)).append(", ");
-            sb.append(markerAddress.getLocality()).append(", ");
-            sb.append(markerAddress.getAdminArea()).append(", ");
+            @Override
+            protected ContentValues doInBackground(Void... params) {
 
-            address = sb.toString();
-
-//            country = markerAddress.getCountryName();
-//
-//            String street = addresses.get(0).getAddressLine(0);
-//            String city = addresses.get(0).getLocality();
-//            String state = addresses.get(0).getAdminArea();
-//            String postalCode = addresses.get(0).getPostalCode();
-//
-//            StringBuilder sb = new StringBuilder();
-//            if (street != null) sb.append(street + ", ");
-//            if (city != null) sb.append(city + ", ");
-//            if (postalCode != null) sb.append(postalCode + ", ");
-//            if (state != null) sb.append(state + ", ");
-//            address = sb.toString();
-        }
+                List<Address> addresses = new ArrayList<Address>();
+                try {
+                    // The '1' represent max location result to returned
+                    addresses = geocoder.getFromLocation(lat, lng, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    //TODO
+                }
 
 
-        //TODO - ReverseGeoWhatever
-        if (m == null) return;
-        ContentValues values = new ContentValues(4);
-        values.put(h.LOCATION_COL_ADDRESS, address);
-        values.put(h.LOCATION_COL_COUNTRY, country);
-        values.put(h.LOCATION_COL_LONGITUDE, m.getPosition().longitude);
-        values.put(h.LOCATION_COL_LATITUDE, m.getPosition().latitude);
+                if (addresses != null && addresses.size() > 0) {
+                    Address markerAddress = addresses.get(0);
 
-        long id = -1;
+                    country = markerAddress.getCountryName();
 
-        try {
-            id = h.getWritableDatabase().insertWithOnConflict(h.TABLE_LOCATION, null, values, SQLiteDatabase.CONFLICT_ROLLBACK);
-        } catch (SQLiteException e) {
-            Log.e("LOADER: ", "SQLite failure: " + e.getCause());
-        }
+                    StringBuilder sb = new StringBuilder();
+                    if (markerAddress.getAddressLine(0) != null)
+                        sb.append(markerAddress.getAddressLine(0)).append(", ");
+                    if (markerAddress.getLocality() != null)
+                        sb.append(markerAddress.getLocality()).append(", ");
+                    if (markerAddress.getAdminArea() != null)
+                        sb.append(markerAddress.getAdminArea()).append(", ");
 
-        if (id < 0) return;
+                    address = sb.toString();
+                }
 
-        m.setTag(new MarkerDetail(id, address, country, new LatLng(m.getPosition().latitude, m.getPosition().longitude)));
-        markerCache.put(id, m);
-        Log.i("LOADER: ", "INSERTED LOC: " + m.getPosition().toString());
+                ContentValues values = new ContentValues(4);
+                values.put(h.LOCATION_COL_ADDRESS, address);
+                values.put(h.LOCATION_COL_COUNTRY, country);
+                values.put(h.LOCATION_COL_LATITUDE, lat);
+                values.put(h.LOCATION_COL_LONGITUDE, lng);
+
+                return values;
+            }
+
+            @Override
+            protected void onPostExecute(ContentValues contentValues) {
+                if (contentValues == null || contentValues.size() < 4) return;
+
+                long id = -1;
+
+                try {
+                    id = h.getWritableDatabase().insertWithOnConflict(h.TABLE_LOCATION, null, contentValues, SQLiteDatabase.CONFLICT_ROLLBACK);
+                } catch (SQLiteException e) {
+                    Log.e("LOADER: ", "SQLite failure: " + e.getCause());
+                }
+
+                if (id < 0) return;
+
+                markerCache.put(id, m);
+                Log.i("LOADER: ", "INSERTED LOC: " + lat + " : " + lng);
+                m.setTag(new MarkerDetail(id, address, country, new LatLng(lat, lng)));
+            }
+        }.execute();
+
     }
 
-    //TODO - cache Markers;
-
     //TODO - removeMarker;
+
 
     //TODO - modifyMarker; single method taking all params or a separate method for each param?
 
