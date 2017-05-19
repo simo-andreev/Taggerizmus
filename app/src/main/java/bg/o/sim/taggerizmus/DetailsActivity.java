@@ -1,24 +1,20 @@
 package bg.o.sim.taggerizmus;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.Marker;
 
@@ -51,7 +47,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
     private ViewPager photoPager;
     private ArrayList<File> images;
 
-    private Button photoButton;
+    private ImageButton photoButton, moveMarker;
 
     private Marker marker;
     private MarkerDetail details;
@@ -98,7 +94,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
         address = (TextView) findViewById(R.id.details_address);
         country = (TextView) findViewById(R.id.details_country);
 
-        latitude = (TextView) findViewById(R.id.details_lon);
+        latitude = (TextView) findViewById(R.id.details_lng);
         longitude = (TextView) findViewById(R.id.details_lat);
 
         defaultPhoto = (ImageView) findViewById(R.id.details_default_photo);
@@ -163,8 +159,10 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
         });
 
 
-        photoButton = (Button) findViewById(R.id.details_add_photo);
+        photoButton = (ImageButton) findViewById(R.id.details_add_photo);
         photoButton.setOnClickListener(photoListener);
+
+        moveMarker = (ImageButton) findViewById(R.id.details_move_marker); //TODO - listsner
 
         address.setText(details.getAddress());
         country.setText(details.getCountry());

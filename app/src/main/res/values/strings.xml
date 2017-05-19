@@ -8,4 +8,10 @@
     <string name="TAG_DIALOG_PHOTO">TAG_DIALOG_PHOTO</string>
     <string name="message_confirm_delete">Are you sure you want to delete this photo?</string>
     <string name="not_in_country">Not aplicable</string>
+    <string name="country">Country:</string>
+    <string name="address_short">Addr:</string>
+    <string name="latitude_short">lat:</string>
+    <string name="longitude_short">lng</string>
+    <string name="title_click_to_add_photo">Add photo</string>
+    <string name="title_click_to_move_marker">move marker</string>
 </resources>

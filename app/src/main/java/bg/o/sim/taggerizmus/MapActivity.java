@@ -26,6 +26,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     private DbAdapter dbAdapter;
     private GoogleMap map;
+    private Geocoder
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +53,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
-        final Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
         dbAdapter.loadMarkers(map);
 
@@ -63,11 +63,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
                 List<Address> addresses = new ArrayList<Address>();
                 try {
-                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1); // The '1' represent max location result to returned
+                    // The '1' represent max location result to returned
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    //TODO
                 }
-                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)), addresses);
+                Address markerAdreess = addresses.size() == 0 ? null : addresses.get(0);
+
+                dbAdapter.addMarker(map.addMarker(new MarkerOptions().position(latLng)), markerAdreess); //TODO !! adding markers is painfully slow, lighten or thread it.
+
             }
         });
 

@@ -62,7 +62,7 @@ public class DbAdapter {
      *
      * @param m {@link Marker} instance which to store.
      */
-    public void addMarker(Marker m, List<Address> addresses) {
+    public void addMarker(Marker m, Address markerAddress) {
 
         double lat = m.getPosition().latitude;
         double lng = m.getPosition().longitude;
@@ -70,20 +70,29 @@ public class DbAdapter {
         String address = "N/A";
         String country = c.getString(R.string.not_in_country);
 
-        if (addresses.size() > 0) {
-            country = addresses.get(0).getCountryName();
-
-            String street = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String postalCode = addresses.get(0).getPostalCode();
+        if (markerAddress != null) {
+            country = markerAddress.getCountryName();
 
             StringBuilder sb = new StringBuilder();
-            if (street != null) sb.append(street + ", ");
-            if (city != null) sb.append(city + ", ");
-            if (postalCode != null) sb.append(postalCode + ", ");
-            if (state != null) sb.append(state + ", ");
+            sb.append(markerAddress.getAddressLine(0)).append(", ");
+            sb.append(markerAddress.getLocality()).append(", ");
+            sb.append(markerAddress.getAdminArea()).append(", ");
+
             address = sb.toString();
+
+//            country = markerAddress.getCountryName();
+//
+//            String street = addresses.get(0).getAddressLine(0);
+//            String city = addresses.get(0).getLocality();
+//            String state = addresses.get(0).getAdminArea();
+//            String postalCode = addresses.get(0).getPostalCode();
+//
+//            StringBuilder sb = new StringBuilder();
+//            if (street != null) sb.append(street + ", ");
+//            if (city != null) sb.append(city + ", ");
+//            if (postalCode != null) sb.append(postalCode + ", ");
+//            if (state != null) sb.append(state + ", ");
+//            address = sb.toString();
         }
 
 
