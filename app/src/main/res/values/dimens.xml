@@ -3,4 +3,9 @@
 
 
     <dimen name="all_spacing_standard">16dp</dimen>
+    <dimen name="all_spacing_small">8dp</dimen>
+
+    <dimen name="text_size_standard">16sp</dimen>
+    <dimen name="text_size_large">24sp</dimen>
+    <dimen name="text_size_largeish">20sp</dimen>
 </resources>
