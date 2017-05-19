@@ -39,7 +39,7 @@ public class PhotoDialog extends Dialog {
         this.imageFile = imageFile;
     }
 
-@Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.dialog_photo);
@@ -81,8 +81,8 @@ public class PhotoDialog extends Dialog {
     }
 
 
-        public interface PhotoDialogActionListener {
+    public interface PhotoDialogActionListener {
         void reactToDeletion(File imageFile);
-    };
+    }
 }
 

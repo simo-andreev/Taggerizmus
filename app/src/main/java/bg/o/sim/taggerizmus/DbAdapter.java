@@ -11,6 +11,7 @@ import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.util.LongSparseArray;
 import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -32,7 +33,7 @@ public class DbAdapter {
     private static DbAdapter instance;
 
     /*Holds all markers for easier(and faster) access and modification, stored as <db id - Marker instance>*/
-    private final HashMap<Long, Marker> markerCache;
+    private final LongSparseArray<Marker> markerCache;
 
     private DbHelper h;
     private Context c;
@@ -42,7 +43,7 @@ public class DbAdapter {
 
         this.c = context;
         this.h = DbHelper.getInstance(c);
-        this.markerCache = new HashMap<>();
+        this.markerCache = new LongSparseArray<>();
     }
 
     public static DbAdapter getInstance(Context c) {
@@ -143,29 +144,30 @@ public class DbAdapter {
 
     //TODO - removeMarker;
 
-    public boolean updateMarkerAddress(String newAddress, long id){
+    public boolean updateMarkerAddress(String newAddress, long id) {
         if (newAddress == null || id < 1 || newAddress.isEmpty()) return false;
         return updateLocation(h.LOCATION_COL_ADDRESS, newAddress, id);
     }
-    public boolean updateMarkerCountry(String newCountry, long id){
+
+    public boolean updateMarkerCountry(String newCountry, long id) {
         if (newCountry == null || id < 1 || newCountry.isEmpty()) return false;
         return updateLocation(h.LOCATION_COL_COUNTRY, newCountry, id);
     }
-    private boolean updateLocation(String column, String data, long id){
+
+    private boolean updateLocation(String column, String data, long id) {
         ContentValues cv = new ContentValues(1);
         cv.put(column, data);
         int result = h.getWritableDatabase().update(h.TABLE_LOCATION, cv, h.LOCATION_COL_ID + " = " + id, null);
         return result != 0;
     }
 
-    public boolean editMarkerLatLng(LatLng newPosition, long id){
+    public boolean editMarkerLatLng(LatLng newPosition, long id) {
         ContentValues cv = new ContentValues(2);
         cv.put(h.LOCATION_COL_LATITUDE, newPosition.latitude);
         cv.put(h.LOCATION_COL_LONGITUDE, newPosition.longitude);
         int result = h.getWritableDatabase().update(h.TABLE_LOCATION, cv, h.LOCATION_COL_ID + " = " + id, null);
         return result != 0;
     }
-
 
 
     public void loadMarkers(final GoogleMap map) {

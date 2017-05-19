@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
 
-
 //TODO !!! VALIDATION !!!
 //TODO documentation
 
@@ -38,19 +37,29 @@ public class MarkerDetail {
         return id;
     }
 
-    public String getAddress() {return address;}
-    public String getCountry() {return country;}
-    public LatLng getLatLng() {return latLng;}
+    public String getAddress() {
+        return address;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public LatLng getLatLng() {
+        return latLng;
+    }
 
 
     public void setAddress(String address) {
         if (address != null && address.length() > 3)
             this.address = address;
     }
+
     public void setCountry(String country) {
         if (country != null && country.length() >= 2)
             this.country = country;
     }
+
     public void setLatLng(LatLng latLng) {
         if (latLng != null)
             this.latLng = latLng;

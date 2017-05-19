@@ -90,9 +90,11 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
 
 
         long id = getIntent().getLongExtra(getString(R.string.EXTRA_MARKER), -1);
-        if (id == -1) finish(); //TODO - ! decide on how to notify user... gently... that something went wrong. !
+        if (id == -1)
+            finish(); //TODO - ! decide on how to notify user... gently... that something went wrong. !
         marker = dbAdapter.getMarker(id);
-        if (marker == null) finish(); //TODO - ! decide on how to notify user... gently... that something ELSE went wrong. !
+        if (marker == null)
+            finish(); //TODO - ! decide on how to notify user... gently... that something ELSE went wrong. !
         details = (MarkerDetail) marker.getTag(); //TODO - this needs a check too :/
 
         IMAGE_FOLDER = getString(R.string.FILE_MARKER_IMAGE_FOLDER) + details.getId();
@@ -131,7 +133,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
 
             @Override
             public boolean isViewFromObject(View view, Object object) {
-                return view.equals((View)object);
+                return view.equals((View) object);
             }
 
             @Override
@@ -142,7 +144,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
                 imageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PhotoDialog dialog = new PhotoDialog(DetailsActivity.this ,images.get(position), DetailsActivity.this ); //TODO - could combine the Context and Listener in 1 param.
+                        PhotoDialog dialog = new PhotoDialog(DetailsActivity.this, images.get(position), DetailsActivity.this); //TODO - could combine the Context and Listener in 1 param.
                         dialog.show();
                         Window window = dialog.getWindow();
                         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -160,7 +162,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
 
             @Override
             public void destroyItem(ViewGroup container, int position, Object object) {
-                photoPager.removeView((View)object);
+                photoPager.removeView((View) object);
             }
         });
 
@@ -180,7 +182,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
             @Override
             public void onClick(View v) {
                 byte field = 1;
-                switch (v.getId()){
+                switch (v.getId()) {
                     case R.id.details_address:
                         field = InputDialog.FIELD_TYPE_ADDRESS;
                         break;
@@ -203,9 +205,9 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
         if (resultCode != RESULT_OK) return;
 
         File dir = new File(getFilesDir() + "/" + IMAGE_FOLDER);
-        images.add(dir.listFiles()[dir.listFiles().length-1]);
+        images.add(dir.listFiles()[dir.listFiles().length - 1]);
         photoPager.getAdapter().notifyDataSetChanged();
-        if (photoPager.getVisibility() == View.GONE){
+        if (photoPager.getVisibility() == View.GONE) {
             defaultPhoto.setVisibility(View.GONE);
             photoPager.setVisibility(View.VISIBLE);
         }
@@ -226,7 +228,7 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
         images.remove(imageFile);
         photoPager.getAdapter().notifyDataSetChanged();
         imageFile.delete();
-        if (images.size() == 0){
+        if (images.size() == 0) {
             defaultPhoto.setVisibility(View.VISIBLE);
             photoPager.setVisibility(View.GONE);
         }
@@ -249,8 +251,9 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
 
 class InputDialog extends Dialog {
 
-    interface InputCommunicator{
+    interface InputCommunicator {
         void updateMarkerAddress(String newAddress);
+
         void updateMarkerCountry(String newCountry);
     }
 
@@ -287,16 +290,16 @@ class InputDialog extends Dialog {
             @Override
             public void onClick(View v) {
                 String str = input.getText().toString();
-                if (str.isEmpty()){
+                if (str.isEmpty()) {
                     input.requestFocus();
                     input.setError(c.getString(R.string.error_field_blank));
                 } else {
-                    switch (field_type){
+                    switch (field_type) {
                         case FIELD_TYPE_ADDRESS:
-                            ((InputCommunicator)c).updateMarkerAddress(str);
+                            ((InputCommunicator) c).updateMarkerAddress(str);
                             break;
                         case FIELD_TYPE_COUNTRY:
-                            ((InputCommunicator)c).updateMarkerCountry(str);
+                            ((InputCommunicator) c).updateMarkerCountry(str);
                             break;
                     }
                     dismiss();

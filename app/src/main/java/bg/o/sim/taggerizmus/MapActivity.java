@@ -1,12 +1,9 @@
 package bg.o.sim.taggerizmus;
 
 import android.content.Intent;
-import android.location.Address;
 import android.location.Geocoder;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,11 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -71,7 +64,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(final Marker marker) {
-                if (marker.getTag() == null || ! (marker.getTag() instanceof MarkerDetail)) return false;
+                if (marker.getTag() == null || !(marker.getTag() instanceof MarkerDetail))
+                    return false;
 
                 Intent i = new Intent(MapActivity.this, DetailsActivity.class);
 
