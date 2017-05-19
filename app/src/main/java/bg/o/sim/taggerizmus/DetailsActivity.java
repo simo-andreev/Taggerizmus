@@ -1,17 +1,21 @@
 package bg.o.sim.taggerizmus;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -24,10 +28,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 
+//TODO !!! EDIT MARKER LOCATION !!!
+
 /**
  * Displays a location-marker's details and provides an interface for modifying said details.
  */
-public class DetailsActivity extends AppCompatActivity implements PhotoDialog.PhotoDialogActionListener {
+public class DetailsActivity extends AppCompatActivity implements PhotoDialog.PhotoDialogActionListener, InputDialog.InputCommunicator {
 
     private static final byte REQUEST_CODE_TAKE_PHOTO = 1;
     //Camera activity should return the photo in extras, under this key.
@@ -167,9 +173,28 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
         address.setText(details.getAddress());
         country.setText(details.getCountry());
 
-        //TODO - set label before values, denoting what they show.
-        latitude.setText(""+details.getLatLng().latitude);
-        longitude.setText(""+details.getLatLng().longitude);
+        latitude.setText(String.format("lat: %.2f", details.getLatLng().latitude));
+        longitude.setText(String.format("lng: %.2f", details.getLatLng().longitude));
+
+        View.OnClickListener infoEditListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                byte field = 1;
+                switch (v.getId()){
+                    case R.id.details_address:
+                        field = InputDialog.FIELD_TYPE_ADDRESS;
+                        break;
+                    case R.id.details_country:
+                        field = InputDialog.FIELD_TYPE_COUNTRY;
+                        break;
+                }
+                InputDialog dialog = new InputDialog(DetailsActivity.this, field);
+                dialog.show();
+            }
+        };
+
+        address.setOnClickListener(infoEditListener);
+        country.setOnClickListener(infoEditListener);
     }
 
 
@@ -205,5 +230,85 @@ public class DetailsActivity extends AppCompatActivity implements PhotoDialog.Ph
             defaultPhoto.setVisibility(View.VISIBLE);
             photoPager.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void updateMarkerAddress(String newAddress) {
+        address.setText(newAddress);
+        details.setAddress(newAddress);
+        dbAdapter.updateMarkerAddress(newAddress, details.getId());
+    }
+
+    @Override
+    public void updateMarkerCountry(String newCountry) {
+        country.setText(newCountry);
+        details.setCountry(newCountry);
+        dbAdapter.updateMarkerCountry(newCountry, details.getId());
+    }
+}
+
+class InputDialog extends Dialog {
+
+    interface InputCommunicator{
+        void updateMarkerAddress(String newAddress);
+        void updateMarkerCountry(String newCountry);
+    }
+
+    public static final byte FIELD_TYPE_ADDRESS = 1;    //and enum might be easier to use on method calls AND is safer in terms of values passed.
+    public static final byte FIELD_TYPE_COUNTRY = 2;
+
+
+    private byte field_type;
+    private Context c;
+
+    private EditText input;
+    private Button cancel, submit;
+
+    public InputDialog(@NonNull Context context, byte field_type) {
+        super(context);
+        if (context == null || !(context instanceof InputCommunicator))
+            throw new IllegalArgumentException("Calling Activity MUST implement InputCommunicator!");
+        this.field_type = field_type;
+        this.c = context;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.dialog_input);
+        setTitle(c.getString(R.string.input_new_value));
+
+        input = (EditText) findViewById(R.id.dialog_input_field);
+
+        cancel = (Button) findViewById(R.id.dialog_input_cancel);
+        submit = (Button) findViewById(R.id.dialog_input_save);
+
+        submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String str = input.getText().toString();
+                if (str.isEmpty()){
+                    input.requestFocus();
+                    input.setError(c.getString(R.string.error_field_blank));
+                } else {
+                    switch (field_type){
+                        case FIELD_TYPE_ADDRESS:
+                            ((InputCommunicator)c).updateMarkerAddress(str);
+                            break;
+                        case FIELD_TYPE_COUNTRY:
+                            ((InputCommunicator)c).updateMarkerCountry(str);
+                            break;
+                    }
+                    dismiss();
+                }
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
     }
 }

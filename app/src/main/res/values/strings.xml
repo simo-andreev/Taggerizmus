@@ -14,4 +14,8 @@
     <string name="longitude_short">lng</string>
     <string name="title_click_to_add_photo">Add photo</string>
     <string name="title_click_to_move_marker">move marker</string>
+    <string name="cancel">cancel</string>
+    <string name="save">save</string>
+    <string name="input_new_value">Input the new value:</string>
+    <string name="error_field_blank">This field can\'t be left empty!</string>
 </resources>

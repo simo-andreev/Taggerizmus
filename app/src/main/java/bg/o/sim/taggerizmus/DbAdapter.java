@@ -143,11 +143,33 @@ public class DbAdapter {
 
     //TODO - removeMarker;
 
+    public boolean updateMarkerAddress(String newAddress, long id){
+        if (newAddress == null || id < 1 || newAddress.isEmpty()) return false;
+        return updateLocation(h.LOCATION_COL_ADDRESS, newAddress, id);
+    }
+    public boolean updateMarkerCountry(String newCountry, long id){
+        if (newCountry == null || id < 1 || newCountry.isEmpty()) return false;
+        return updateLocation(h.LOCATION_COL_COUNTRY, newCountry, id);
+    }
+    private boolean updateLocation(String column, String data, long id){
+        ContentValues cv = new ContentValues(1);
+        cv.put(column, data);
+        int result = h.getWritableDatabase().update(h.TABLE_LOCATION, cv, h.LOCATION_COL_ID + " = " + id, null);
+        return result != 0;
+    }
 
-    //TODO - modifyMarker; single method taking all params or a separate method for each param?
+    public boolean editMarkerLatLng(LatLng newPosition, long id){
+        ContentValues cv = new ContentValues(2);
+        cv.put(h.LOCATION_COL_LATITUDE, newPosition.latitude);
+        cv.put(h.LOCATION_COL_LONGITUDE, newPosition.longitude);
+        int result = h.getWritableDatabase().update(h.TABLE_LOCATION, cv, h.LOCATION_COL_ID + " = " + id, null);
+        return result != 0;
+    }
+
+
 
     public void loadMarkers(final GoogleMap map) {
-        //TODO - validate map param!
+        //TODO - validate map param
         new AsyncTask<Void, MarkerDetail, Void>() {
 
             @Override
