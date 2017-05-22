@@ -37,7 +37,6 @@
 
     <TextView
         android:id="@+id/details_lat"
-
         style="@style/DetailsCoords"
         android:layout_above="@+id/details_lng"
         android:text="@string/latitude_short" />
@@ -48,26 +47,29 @@
         android:layout_above="@+id/details_move_marker"
         android:text="@string/longitude_short" />
 
+
+    <ImageButton
+        android:id="@+id/details_delete_marker"
+        style="@style/DetailsImageButton"
+        android:layout_alignParentLeft="true"
+        android:src="@mipmap/ic_edit_location"
+        android:text="@string/title_click_to_move_marker" />
+
+
     <ImageButton
         android:id="@+id/details_add_photo"
         style="@style/DetailsImageButton"
-        android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@+id/details_spacer"
+        android:layout_centerHorizontal="true"
         android:src="@mipmap/ic_camera"
         android:text="@string/title_click_to_add_photo" />
 
-    <Space
-        android:id="@+id/details_spacer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_centerHorizontal="true" />
 
     <ImageButton
         android:id="@+id/details_move_marker"
         style="@style/DetailsImageButton"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/details_spacer"
-        android:src="@mipmap/ic_edit_location"
+        android:src="@mipmap/ic_delete_square"
         android:text="@string/title_click_to_move_marker" />
+
 
 </RelativeLayout>
